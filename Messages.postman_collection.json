@@ -1,7 +1,7 @@
 {
 	"info": {
-		"_postman_id": "030c2f2b-d110-4479-8c10-a445285de86e",
-		"name": "Messages",
+		"_postman_id": "a2c24790-9a28-46ec-ac1a-83d388eb8a96",
+		"name": "Messages copy",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
@@ -2058,6 +2058,22 @@
 						}
 					],
 					"_postman_isSubFolder": true
+				}
+			]
+		},
+		{
+			"name": "Hola fReinko",
+			"item": [
+				{
+					"name": "Hello fReinko",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": ""
+						}
+					},
+					"response": []
 				}
 			]
 		}
