@@ -1,0 +1,2075 @@
+{
+	"info": {
+		"_postman_id": "030c2f2b-d110-4479-8c10-a445285de86e",
+		"name": "Messages",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Cases",
+			"item": [
+				{
+					"name": "System",
+					"item": [
+						{
+							"name": "Token",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "4e463ae3-14ae-49ce-8d5c-21648c11716d",
+										"exec": [
+											"var jsonData = pm.response.json();",
+											"pm.environment.set(\"new_token\", jsonData.token );",
+											"pm.test(\"Response time is less than 2000ms\", () => pm.expect(pm.response.responseTime).to.be.below(2000));",
+											"pm.test(\"Status code is 201 for creating a token as system\", () => pm.response.to.have.status(201));"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"id": "20bce67a-4c51-45af-bf8b-809b8bb1fb3a",
+										"exec": [
+											"let timestamp = new Date().getTime();",
+											"let body = JSON.parse(request.data);",
+											"postman.setEnvironmentVariable(\"timestamp\", timestamp);",
+											"",
+											"let token_secret = postman.getEnvironmentVariable(\"token_secret\");",
+											"let hmac = CryptoJS.HmacSHA256(`${body.signature_value}.${body.signature_value.length}.${timestamp}`, token_secret);",
+											"let encodedSource = CryptoJS.enc.Base64.stringify(hmac);",
+											"postman.setEnvironmentVariable(\"signature\", encodedSource);"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"name": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"client\": \"autoAuthenticationSystem\", \n    \"signature_value\": \"test2\",\n    \"timestamp\": \"{{timestamp}}\",\n    \"signature\": \"{{signature}}\",\n    \"audience\": \"api.authvia.com\",\n    \"scopes\": [\n    \t\"messages:create\",\n    \t\"messages:read\",\n    \t\"messages:update\"\n    \t]\n}"
+								},
+								"url": {
+									"raw": "https://{{host}}/v3/tokens",
+									"protocol": "https",
+									"host": [
+										"{{host}}"
+									],
+									"path": [
+										"v3",
+										"tokens"
+									]
+								},
+								"description": "Previous timestamp token used: 1556757580678"
+							},
+							"response": []
+						},
+						{
+							"name": "Create Message to user, sms",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "c04bbd93-2362-47e3-878b-a39d3eeba767",
+										"exec": [
+											"var jsonData = pm.response.json();",
+											"pm.test(\"Status code is 201 for creating a message to user via sms as system\", () => pm.response.to.have.status(201));",
+											"pm.test(\"Body saves expected value\", () => pm.expect(jsonData.plain.body).to.eql(\"Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role.\"));",
+											"pm.test(\"Body saves as string\", () => pm.expect(jsonData.plain.body).to.be.a('string'));",
+											"pm.test(\"Channel saves expected value\", () => pm.expect(jsonData.plain.channel).to.eql(\"sms\"));",
+											"pm.test(\"Channel saves as string\", () => pm.expect(jsonData.plain.channel).to.be.a('string'));",
+											"pm.test(\"Direction saves expected value\", () => pm.expect(jsonData.direction).to.eql(\"to-user\"));",
+											"pm.test(\"Direction saves as string\", () => pm.expect(jsonData.direction).to.be.a('string'));",
+											"pm.test(\"Org ID saves expected value\", () => pm.expect(jsonData.organizationId).to.eql(\"autoOrg\"));",
+											"pm.test(\"Org ID saves as string\", () => pm.expect(jsonData.organizationId).to.be.a('string'));",
+											"pm.test(\"Merchant Id saves expected value\", () => pm.expect(jsonData.merchantId).to.eql(\"autoauthsys\"));",
+											"pm.test(\"Merchant Id saves as string\", () => pm.expect(jsonData.merchantId).to.be.a('string'));",
+											"pm.test(\"Status saves expected value\", () => pm.expect(jsonData.status).to.eql(\"pending\"));",
+											"pm.test(\"Status saves as string\", () => pm.expect(jsonData.status).to.be.a('string'));",
+											"pm.test(\"messageId saves as string\", () => pm.expect(jsonData.messageId).to.be.a('string'));",
+											"pattern = new RegExp(/^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/, 'i');",
+											"pm.test(\"Message id saved in expected format\", () => pm.expect(pattern.test(jsonData.messageId)).to.be.true);",
+											"pm.test(\"Created by not being returned in response\", () => pm.expect(pm.response.text()).to.not.include(\"createdBy\"));",
+											"pm.test(\"Created on not being returned in response\", () => pm.expect(pm.response.text()).to.not.include(\"createdOn\"));",
+											"pm.test(\"Response time is less than 2000ms\", () => pm.expect(pm.response.responseTime).to.be.below(2000));"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"id": "5a73de8c-e16e-4440-97a7-45e4db9bfac4",
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{new_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"name": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"plain\": {\r\n        \"body\": \"Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role.\",\r\n        \"channel\": \"sms\"\r\n    },\r\n    \"direction\": \"to-user\"\r\n}"
+								},
+								"url": {
+									"raw": "https://{{host_msg}}/v3/users/123/messages",
+									"protocol": "https",
+									"host": [
+										"{{host_msg}}"
+									],
+									"path": [
+										"v3",
+										"users",
+										"123",
+										"messages"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create Message to user, email",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "c04bbd93-2362-47e3-878b-a39d3eeba767",
+										"exec": [
+											"var jsonData = pm.response.json();",
+											"pm.test(\"Status code is 201 for creating a message to user via email as system\", () => pm.response.to.have.status(201));",
+											"pm.test(\"Body saves expected value\", () => pm.expect(jsonData.plain.body).to.eql(\"Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role.\"));",
+											"pm.test(\"Body saves as string\", () => pm.expect(jsonData.plain.body).to.be.a('string'));",
+											"pm.test(\"Channel saves expected value\", () => pm.expect(jsonData.plain.channel).to.eql(\"email\"));",
+											"pm.test(\"Channel saves as string\", () => pm.expect(jsonData.plain.channel).to.be.a('string'));",
+											"pm.test(\"Direction saves expected value\", () => pm.expect(jsonData.direction).to.eql(\"to-user\"));",
+											"pm.test(\"Direction saves as string\", () => pm.expect(jsonData.direction).to.be.a('string'));",
+											"pm.test(\"Org ID saves expected value\", () => pm.expect(jsonData.organizationId).to.eql(\"autoOrg\"));",
+											"pm.test(\"Org ID saves as string\", () => pm.expect(jsonData.organizationId).to.be.a('string'));",
+											"pm.test(\"Merchant Id saves expected value\", () => pm.expect(jsonData.merchantId).to.eql(\"autoauthsys\"));",
+											"pm.test(\"Merchant Id saves as string\", () => pm.expect(jsonData.merchantId).to.be.a('string'));",
+											"pm.test(\"Status saves expected value\", () => pm.expect(jsonData.status).to.eql(\"pending\"));",
+											"pm.test(\"Status saves as string\", () => pm.expect(jsonData.status).to.be.a('string'));",
+											"pm.test(\"messageId saves as string\", () => pm.expect(jsonData.messageId).to.be.a('string'));",
+											"pattern = new RegExp(/^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/, 'i');",
+											"pm.test(\"Message id saved in expected format\", () => pm.expect(pattern.test(jsonData.messageId)).to.be.true);",
+											"pm.test(\"Created by not being returned in response\", () => pm.expect(pm.response.text()).to.not.include(\"createdBy\"));",
+											"pm.test(\"Created on not being returned in response\", () => pm.expect(pm.response.text()).to.not.include(\"createdOn\"));",
+											"pm.test(\"Response time is less than 2000ms\", () => pm.expect(pm.response.responseTime).to.be.below(2000));"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"id": "5a73de8c-e16e-4440-97a7-45e4db9bfac4",
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{new_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"name": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"plain\": {\r\n        \"body\": \"Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role.\",\r\n        \"channel\": \"email\"\r\n    },\r\n    \"direction\": \"to-user\"\r\n}"
+								},
+								"url": {
+									"raw": "https://{{host_msg}}/v3/users/123/messages",
+									"protocol": "https",
+									"host": [
+										"{{host_msg}}"
+									],
+									"path": [
+										"v3",
+										"users",
+										"123",
+										"messages"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create Message from user, sms",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "c04bbd93-2362-47e3-878b-a39d3eeba767",
+										"exec": [
+											"var jsonData = pm.response.json();",
+											"pm.test(\"Status code is 201 for creating a message from user via sms as system\", () => pm.response.to.have.status(201));",
+											"pm.test(\"Body saves expected value\", () => pm.expect(jsonData.plain.body).to.eql(\"Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role.\"));",
+											"pm.test(\"Body saves as string\", () => pm.expect(jsonData.plain.body).to.be.a('string'));",
+											"pm.test(\"Channel saves expected value\", () => pm.expect(jsonData.plain.channel).to.eql(\"sms\"));",
+											"pm.test(\"Channel saves as string\", () => pm.expect(jsonData.plain.channel).to.be.a('string'));",
+											"pm.test(\"Direction saves expected value\", () => pm.expect(jsonData.direction).to.eql(\"from-user\"));",
+											"pm.test(\"Direction saves as string\", () => pm.expect(jsonData.direction).to.be.a('string'));",
+											"pm.test(\"Org ID saves expected value\", () => pm.expect(jsonData.organizationId).to.eql(\"autoOrg\"));",
+											"pm.test(\"Org ID saves as string\", () => pm.expect(jsonData.organizationId).to.be.a('string'));",
+											"pm.test(\"Merchant Id saves expected value\", () => pm.expect(jsonData.merchantId).to.eql(\"autoauthsys\"));",
+											"pm.test(\"Merchant Id saves as string\", () => pm.expect(jsonData.merchantId).to.be.a('string'));",
+											"pm.test(\"Status saves expected value\", () => pm.expect(jsonData.status).to.eql(\"pending\"));",
+											"pm.test(\"Status saves as string\", () => pm.expect(jsonData.status).to.be.a('string'));",
+											"pm.test(\"messageId saves as string\", () => pm.expect(jsonData.messageId).to.be.a('string'));",
+											"pattern = new RegExp(/^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/, 'i');",
+											"pm.test(\"Message id saved in expected format\", () => pm.expect(pattern.test(jsonData.messageId)).to.be.true);",
+											"pm.test(\"Created by not being returned in response\", () => pm.expect(pm.response.text()).to.not.include(\"createdBy\"));",
+											"pm.test(\"Created on not being returned in response\", () => pm.expect(pm.response.text()).to.not.include(\"createdOn\"));",
+											"pm.test(\"Response time is less than 2000ms\", () => pm.expect(pm.response.responseTime).to.be.below(2000));"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"id": "5a73de8c-e16e-4440-97a7-45e4db9bfac4",
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{new_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"name": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"plain\": {\r\n        \"body\": \"Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role.\",\r\n        \"channel\": \"sms\"\r\n    },\r\n    \"direction\": \"from-user\"\r\n}"
+								},
+								"url": {
+									"raw": "https://{{host_msg}}/v3/users/123/messages",
+									"protocol": "https",
+									"host": [
+										"{{host_msg}}"
+									],
+									"path": [
+										"v3",
+										"users",
+										"123",
+										"messages"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create Message from user, email",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "c04bbd93-2362-47e3-878b-a39d3eeba767",
+										"exec": [
+											"var jsonData = pm.response.json();",
+											"pm.test(\"Status code is 201 for creating a message from user via email as system\", () => pm.response.to.have.status(201));",
+											"pm.test(\"Body saves expected value\", () => pm.expect(jsonData.plain.body).to.eql(\"Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role.\"));",
+											"pm.test(\"Body saves as string\", () => pm.expect(jsonData.plain.body).to.be.a('string'));",
+											"pm.test(\"Channel saves expected value\", () => pm.expect(jsonData.plain.channel).to.eql(\"sms\"));",
+											"pm.test(\"Channel saves as string\", () => pm.expect(jsonData.plain.channel).to.be.a('string'));",
+											"pm.test(\"Direction saves expected value\", () => pm.expect(jsonData.direction).to.eql(\"from-user\"));",
+											"pm.test(\"Direction saves as string\", () => pm.expect(jsonData.direction).to.be.a('string'));",
+											"pm.test(\"Org ID saves expected value\", () => pm.expect(jsonData.organizationId).to.eql(\"autoOrg\"));",
+											"pm.test(\"Org ID saves as string\", () => pm.expect(jsonData.organizationId).to.be.a('string'));",
+											"pm.test(\"Merchant Id saves expected value\", () => pm.expect(jsonData.merchantId).to.eql(\"autoauthsys\"));",
+											"pm.test(\"Merchant Id saves as string\", () => pm.expect(jsonData.merchantId).to.be.a('string'));",
+											"pm.test(\"Status saves expected value\", () => pm.expect(jsonData.status).to.eql(\"pending\"));",
+											"pm.test(\"Status saves as string\", () => pm.expect(jsonData.status).to.be.a('string'));",
+											"pm.test(\"messageId saves as string\", () => pm.expect(jsonData.messageId).to.be.a('string'));",
+											"pattern = new RegExp(/^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/, 'i');",
+											"pm.test(\"Message id saved in expected format\", () => pm.expect(pattern.test(jsonData.messageId)).to.be.true);",
+											"pm.test(\"Created by not being returned in response\", () => pm.expect(pm.response.text()).to.not.include(\"createdBy\"));",
+											"pm.test(\"Created on not being returned in response\", () => pm.expect(pm.response.text()).to.not.include(\"createdOn\"));",
+											"pm.test(\"Response time is less than 2000ms\", () => pm.expect(pm.response.responseTime).to.be.below(2000));"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"id": "5a73de8c-e16e-4440-97a7-45e4db9bfac4",
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{new_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"name": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"plain\": {\r\n        \"body\": \"Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role.\",\r\n        \"channel\": \"sms\"\r\n    },\r\n    \"direction\": \"from-user\"\r\n}"
+								},
+								"url": {
+									"raw": "https://{{host_msg}}/v3/users/123/messages",
+									"protocol": "https",
+									"host": [
+										"{{host_msg}}"
+									],
+									"path": [
+										"v3",
+										"users",
+										"123",
+										"messages"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"_postman_isSubFolder": true
+				},
+				{
+					"name": "Admin",
+					"item": [
+						{
+							"name": "Token",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "4e463ae3-14ae-49ce-8d5c-21648c11716d",
+										"exec": [
+											"var jsonData = pm.response.json();",
+											"pm.environment.set(\"new_token\", jsonData.token );",
+											"pm.test(\"Response time is less than 2000ms\", () => pm.expect(pm.response.responseTime).to.be.below(2000));",
+											"pm.test(\"Status code is 201 for creating a token as admin\", () => pm.response.to.have.status(201));"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"id": "20bce67a-4c51-45af-bf8b-809b8bb1fb3a",
+										"exec": [
+											"let timestamp = new Date().getTime();",
+											"let body = JSON.parse(request.data);",
+											"postman.setEnvironmentVariable(\"timestamp\", timestamp);",
+											"",
+											"let token_secret = postman.getEnvironmentVariable(\"token_secret\");",
+											"let hmac = CryptoJS.HmacSHA256(`${body.signature_value}.${body.signature_value.length}.${timestamp}`, token_secret);",
+											"let encodedSource = CryptoJS.enc.Base64.stringify(hmac);",
+											"postman.setEnvironmentVariable(\"signature\", encodedSource);"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"name": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"client\": \"autoAuthenticationAdmin\", \n    \"signature_value\": \"test2\",\n    \"timestamp\": \"{{timestamp}}\",\n    \"signature\": \"{{signature}}\",\n    \"audience\": \"api.authvia.com\",\n    \"scopes\": [\n    \t\"messages:create\",\n    \t\"messages:read\",\n    \t\"messages:update\"\n    \t]\n}"
+								},
+								"url": {
+									"raw": "https://{{host}}/v3/tokens",
+									"protocol": "https",
+									"host": [
+										"{{host}}"
+									],
+									"path": [
+										"v3",
+										"tokens"
+									]
+								},
+								"description": "Previous timestamp token used: 1556757580678"
+							},
+							"response": []
+						},
+						{
+							"name": "Create Message to user, sms",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "c04bbd93-2362-47e3-878b-a39d3eeba767",
+										"exec": [
+											"var jsonData = pm.response.json();",
+											"pm.test(\"Status code is 201 for creating a message to user via sms as admin\", () => pm.response.to.have.status(201));",
+											"pm.test(\"Body saves expected value\", () => pm.expect(jsonData.plain.body).to.eql(\"Message created successfully as admin role. Message created successfully as admin role. Message created successfully as admin role. Message created successfully as admin role. Message created successfully as admin role. Message created successfully as admin role. Message created successfully as admin role. Message created successfully as admin role. Message created successfully as admin role. Message created successfully as admin role. Message created successfully as admin role. Message created successfully as admin role. Message created successfully as admin role. Message created successfully as admin role. Message created successfully as admin role.\"));",
+											"pm.test(\"Body saves as string\", () => pm.expect(jsonData.plain.body).to.be.a('string'));",
+											"pm.test(\"Channel saves expected value\", () => pm.expect(jsonData.plain.channel).to.eql(\"sms\"));",
+											"pm.test(\"Channel saves as string\", () => pm.expect(jsonData.plain.channel).to.be.a('string'));",
+											"pm.test(\"Direction saves expected value\", () => pm.expect(jsonData.direction).to.eql(\"to-user\"));",
+											"pm.test(\"Direction saves as string\", () => pm.expect(jsonData.direction).to.be.a('string'));",
+											"pm.test(\"Org ID saves expected value\", () => pm.expect(jsonData.organizationId).to.eql(\"autoOrg\"));",
+											"pm.test(\"Org ID saves as string\", () => pm.expect(jsonData.organizationId).to.be.a('string'));",
+											"pm.test(\"Merchant Id saves expected value\", () => pm.expect(jsonData.merchantId).to.eql(\"autoauthadmin\"));",
+											"pm.test(\"Merchant Id saves as string\", () => pm.expect(jsonData.merchantId).to.be.a('string'));",
+											"pm.test(\"Status saves expected value\", () => pm.expect(jsonData.status).to.eql(\"pending\"));",
+											"pm.test(\"Status saves as string\", () => pm.expect(jsonData.status).to.be.a('string'));",
+											"pm.test(\"messageId saves as string\", () => pm.expect(jsonData.messageId).to.be.a('string'));",
+											"pattern = new RegExp(/^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/, 'i');",
+											"pm.test(\"Message id saved in expected format\", () => pm.expect(pattern.test(jsonData.messageId)).to.be.true);",
+											"pm.test(\"Created by not being returned in response\", () => pm.expect(pm.response.text()).to.not.include(\"createdBy\"));",
+											"pm.test(\"Created on not being returned in response\", () => pm.expect(pm.response.text()).to.not.include(\"createdOn\"));",
+											"pm.test(\"Response time is less than 2000ms\", () => pm.expect(pm.response.responseTime).to.be.below(2000));"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"id": "5a73de8c-e16e-4440-97a7-45e4db9bfac4",
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{new_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"name": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"plain\": {\r\n        \"body\": \"Message created successfully as admin role. Message created successfully as admin role. Message created successfully as admin role. Message created successfully as admin role. Message created successfully as admin role. Message created successfully as admin role. Message created successfully as admin role. Message created successfully as admin role. Message created successfully as admin role. Message created successfully as admin role. Message created successfully as admin role. Message created successfully as admin role. Message created successfully as admin role. Message created successfully as admin role. Message created successfully as admin role.\",\r\n        \"channel\": \"sms\"\r\n    },\r\n    \"direction\": \"to-user\"\r\n}"
+								},
+								"url": {
+									"raw": "https://{{host_msg}}/v3/users/123/messages",
+									"protocol": "https",
+									"host": [
+										"{{host_msg}}"
+									],
+									"path": [
+										"v3",
+										"users",
+										"123",
+										"messages"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create Message to user, email",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "c04bbd93-2362-47e3-878b-a39d3eeba767",
+										"exec": [
+											"var jsonData = pm.response.json();",
+											"pm.test(\"Status code is 201 for creating a message to user via email as admin\", () => pm.response.to.have.status(201));",
+											"pm.test(\"Body saves expected value\", () => pm.expect(jsonData.plain.body).to.eql(\"Message created successfully as admin role. Message created successfully as admin role. Message created successfully as admin role. Message created successfully as admin role. Message created successfully as admin role. Message created successfully as admin role. Message created successfully as admin role. Message created successfully as admin role. Message created successfully as admin role. Message created successfully as admin role. Message created successfully as admin role. Message created successfully as admin role. Message created successfully as admin role. Message created successfully as admin role. Message created successfully as admin role.\"));",
+											"pm.test(\"Body saves as string\", () => pm.expect(jsonData.plain.body).to.be.a('string'));",
+											"pm.test(\"Channel saves expected value\", () => pm.expect(jsonData.plain.channel).to.eql(\"email\"));",
+											"pm.test(\"Channel saves as string\", () => pm.expect(jsonData.plain.channel).to.be.a('string'));",
+											"pm.test(\"Direction saves expected value\", () => pm.expect(jsonData.direction).to.eql(\"to-user\"));",
+											"pm.test(\"Direction saves as string\", () => pm.expect(jsonData.direction).to.be.a('string'));",
+											"pm.test(\"Org ID saves expected value\", () => pm.expect(jsonData.organizationId).to.eql(\"autoOrg\"));",
+											"pm.test(\"Org ID saves as string\", () => pm.expect(jsonData.organizationId).to.be.a('string'));",
+											"pm.test(\"Merchant Id saves expected value\", () => pm.expect(jsonData.merchantId).to.eql(\"autoauthadmin\"));",
+											"pm.test(\"Merchant Id saves as string\", () => pm.expect(jsonData.merchantId).to.be.a('string'));",
+											"pm.test(\"Status saves expected value\", () => pm.expect(jsonData.status).to.eql(\"pending\"));",
+											"pm.test(\"Status saves as string\", () => pm.expect(jsonData.status).to.be.a('string'));",
+											"pm.test(\"messageId saves as string\", () => pm.expect(jsonData.messageId).to.be.a('string'));",
+											"pattern = new RegExp(/^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/, 'i');",
+											"pm.test(\"Message id saved in expected format\", () => pm.expect(pattern.test(jsonData.messageId)).to.be.true);",
+											"pm.test(\"Created by not being returned in response\", () => pm.expect(pm.response.text()).to.not.include(\"createdBy\"));",
+											"pm.test(\"Created on not being returned in response\", () => pm.expect(pm.response.text()).to.not.include(\"createdOn\"));",
+											"pm.test(\"Response time is less than 2000ms\", () => pm.expect(pm.response.responseTime).to.be.below(2000));"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"id": "5a73de8c-e16e-4440-97a7-45e4db9bfac4",
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{new_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"name": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"plain\": {\r\n        \"body\": \"Message created successfully as admin role. Message created successfully as admin role. Message created successfully as admin role. Message created successfully as admin role. Message created successfully as admin role. Message created successfully as admin role. Message created successfully as admin role. Message created successfully as admin role. Message created successfully as admin role. Message created successfully as admin role. Message created successfully as admin role. Message created successfully as admin role. Message created successfully as admin role. Message created successfully as admin role. Message created successfully as admin role.\",\r\n        \"channel\": \"email\"\r\n    },\r\n    \"direction\": \"to-user\"\r\n}"
+								},
+								"url": {
+									"raw": "https://{{host_msg}}/v3/users/123/messages",
+									"protocol": "https",
+									"host": [
+										"{{host_msg}}"
+									],
+									"path": [
+										"v3",
+										"users",
+										"123",
+										"messages"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create Message from user, sms",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "c04bbd93-2362-47e3-878b-a39d3eeba767",
+										"exec": [
+											"var jsonData = pm.response.json();",
+											"pm.test(\"Status code is 201 for creating a message from user via sms as admin\", () => pm.response.to.have.status(201));",
+											"pm.test(\"Body saves expected value\", () => pm.expect(jsonData.plain.body).to.eql(\"Message created successfully as admin role. Message created successfully as admin role. Message created successfully as admin role. Message created successfully as admin role. Message created successfully as admin role. Message created successfully as admin role. Message created successfully as admin role. Message created successfully as admin role. Message created successfully as admin role. Message created successfully as admin role. Message created successfully as admin role. Message created successfully as admin role. Message created successfully as admin role. Message created successfully as admin role. Message created successfully as admin role.\"));",
+											"pm.test(\"Body saves as string\", () => pm.expect(jsonData.plain.body).to.be.a('string'));",
+											"pm.test(\"Channel saves expected value\", () => pm.expect(jsonData.plain.channel).to.eql(\"sms\"));",
+											"pm.test(\"Channel saves as string\", () => pm.expect(jsonData.plain.channel).to.be.a('string'));",
+											"pm.test(\"Direction saves expected value\", () => pm.expect(jsonData.direction).to.eql(\"from-user\"));",
+											"pm.test(\"Direction saves as string\", () => pm.expect(jsonData.direction).to.be.a('string'));",
+											"pm.test(\"Org ID saves expected value\", () => pm.expect(jsonData.organizationId).to.eql(\"autoOrg\"));",
+											"pm.test(\"Org ID saves as string\", () => pm.expect(jsonData.organizationId).to.be.a('string'));",
+											"pm.test(\"Merchant Id saves expected value\", () => pm.expect(jsonData.merchantId).to.eql(\"autoauthadmin\"));",
+											"pm.test(\"Merchant Id saves as string\", () => pm.expect(jsonData.merchantId).to.be.a('string'));",
+											"pm.test(\"Status saves expected value\", () => pm.expect(jsonData.status).to.eql(\"pending\"));",
+											"pm.test(\"Status saves as string\", () => pm.expect(jsonData.status).to.be.a('string'));",
+											"pm.test(\"messageId saves as string\", () => pm.expect(jsonData.messageId).to.be.a('string'));",
+											"pattern = new RegExp(/^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/, 'i');",
+											"pm.test(\"Message id saved in expected format\", () => pm.expect(pattern.test(jsonData.messageId)).to.be.true);",
+											"pm.test(\"Created by not being returned in response\", () => pm.expect(pm.response.text()).to.not.include(\"createdBy\"));",
+											"pm.test(\"Created on not being returned in response\", () => pm.expect(pm.response.text()).to.not.include(\"createdOn\"));",
+											"pm.test(\"Response time is less than 2000ms\", () => pm.expect(pm.response.responseTime).to.be.below(2000));"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"id": "5a73de8c-e16e-4440-97a7-45e4db9bfac4",
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{new_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"name": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"plain\": {\r\n        \"body\": \"Message created successfully as admin role. Message created successfully as admin role. Message created successfully as admin role. Message created successfully as admin role. Message created successfully as admin role. Message created successfully as admin role. Message created successfully as admin role. Message created successfully as admin role. Message created successfully as admin role. Message created successfully as admin role. Message created successfully as admin role. Message created successfully as admin role. Message created successfully as admin role. Message created successfully as admin role. Message created successfully as admin role.\",\r\n        \"channel\": \"sms\"\r\n    },\r\n    \"direction\": \"from-user\"\r\n}"
+								},
+								"url": {
+									"raw": "https://{{host_msg}}/v3/users/123/messages",
+									"protocol": "https",
+									"host": [
+										"{{host_msg}}"
+									],
+									"path": [
+										"v3",
+										"users",
+										"123",
+										"messages"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create Message from user, email",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "c04bbd93-2362-47e3-878b-a39d3eeba767",
+										"exec": [
+											"var jsonData = pm.response.json();",
+											"pm.test(\"Status code is 201 for creating a message from user via email as admin\", () => pm.response.to.have.status(201));",
+											"pm.test(\"Body saves expected value\", () => pm.expect(jsonData.plain.body).to.eql(\"Message created successfully as admin role. Message created successfully as admin role. Message created successfully as admin role. Message created successfully as admin role. Message created successfully as admin role. Message created successfully as admin role. Message created successfully as admin role. Message created successfully as admin role. Message created successfully as admin role. Message created successfully as admin role. Message created successfully as admin role. Message created successfully as admin role. Message created successfully as admin role. Message created successfully as admin role. Message created successfully as admin role.\"));",
+											"pm.test(\"Body saves as string\", () => pm.expect(jsonData.plain.body).to.be.a('string'));",
+											"pm.test(\"Channel saves expected value\", () => pm.expect(jsonData.plain.channel).to.eql(\"email\"));",
+											"pm.test(\"Channel saves as string\", () => pm.expect(jsonData.plain.channel).to.be.a('string'));",
+											"pm.test(\"Direction saves expected value\", () => pm.expect(jsonData.direction).to.eql(\"from-user\"));",
+											"pm.test(\"Direction saves as string\", () => pm.expect(jsonData.direction).to.be.a('string'));",
+											"pm.test(\"Org ID saves expected value\", () => pm.expect(jsonData.organizationId).to.eql(\"autoOrg\"));",
+											"pm.test(\"Org ID saves as string\", () => pm.expect(jsonData.organizationId).to.be.a('string'));",
+											"pm.test(\"Merchant Id saves expected value\", () => pm.expect(jsonData.merchantId).to.eql(\"autoauthadmin\"));",
+											"pm.test(\"Merchant Id saves as string\", () => pm.expect(jsonData.merchantId).to.be.a('string'));",
+											"pm.test(\"Status saves expected value\", () => pm.expect(jsonData.status).to.eql(\"pending\"));",
+											"pm.test(\"Status saves as string\", () => pm.expect(jsonData.status).to.be.a('string'));",
+											"pm.test(\"messageId saves as string\", () => pm.expect(jsonData.messageId).to.be.a('string'));",
+											"pattern = new RegExp(/^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/, 'i');",
+											"pm.test(\"Message id saved in expected format\", () => pm.expect(pattern.test(jsonData.messageId)).to.be.true);",
+											"pm.test(\"Created by not being returned in response\", () => pm.expect(pm.response.text()).to.not.include(\"createdBy\"));",
+											"pm.test(\"Created on not being returned in response\", () => pm.expect(pm.response.text()).to.not.include(\"createdOn\"));",
+											"pm.test(\"Response time is less than 2000ms\", () => pm.expect(pm.response.responseTime).to.be.below(2000));"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"id": "5a73de8c-e16e-4440-97a7-45e4db9bfac4",
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{new_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"name": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"plain\": {\r\n        \"body\": \"Message created successfully as admin role. Message created successfully as admin role. Message created successfully as admin role. Message created successfully as admin role. Message created successfully as admin role. Message created successfully as admin role. Message created successfully as admin role. Message created successfully as admin role. Message created successfully as admin role. Message created successfully as admin role. Message created successfully as admin role. Message created successfully as admin role. Message created successfully as admin role. Message created successfully as admin role. Message created successfully as admin role.\",\r\n        \"channel\": \"email\"\r\n    },\r\n    \"direction\": \"from-user\"\r\n}"
+								},
+								"url": {
+									"raw": "https://{{host_msg}}/v3/users/123/messages",
+									"protocol": "https",
+									"host": [
+										"{{host_msg}}"
+									],
+									"path": [
+										"v3",
+										"users",
+										"123",
+										"messages"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"_postman_isSubFolder": true
+				},
+				{
+					"name": "Merchant",
+					"item": [
+						{
+							"name": "Token",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "4e463ae3-14ae-49ce-8d5c-21648c11716d",
+										"exec": [
+											"var jsonData = pm.response.json();",
+											"pm.environment.set(\"new_token\", jsonData.token );",
+											"pm.test(\"Response time is less than 2000ms\", () => pm.expect(pm.response.responseTime).to.be.below(2000));",
+											"pm.test(\"Status code is 201 for creating a token as merchant\", () => pm.response.to.have.status(201));"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"id": "20bce67a-4c51-45af-bf8b-809b8bb1fb3a",
+										"exec": [
+											"let timestamp = new Date().getTime();",
+											"let body = JSON.parse(request.data);",
+											"postman.setEnvironmentVariable(\"timestamp\", timestamp);",
+											"",
+											"let token_secret = postman.getEnvironmentVariable(\"token_secret\");",
+											"let hmac = CryptoJS.HmacSHA256(`${body.signature_value}.${body.signature_value.length}.${timestamp}`, token_secret);",
+											"let encodedSource = CryptoJS.enc.Base64.stringify(hmac);",
+											"postman.setEnvironmentVariable(\"signature\", encodedSource);"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"name": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"client\": \"autoAuthenticationMerchant\", \n    \"signature_value\": \"test2\",\n    \"timestamp\": \"{{timestamp}}\",\n    \"signature\": \"{{signature}}\",\n    \"audience\": \"api.authvia.com\",\n    \"scopes\": [\n    \t\"messages:create\",\n    \t\"messages:read\",\n    \t\"messages:update\"\n    \t]\n}"
+								},
+								"url": {
+									"raw": "https://{{host}}/v3/tokens",
+									"protocol": "https",
+									"host": [
+										"{{host}}"
+									],
+									"path": [
+										"v3",
+										"tokens"
+									]
+								},
+								"description": "Previous timestamp token used: 1556757580678"
+							},
+							"response": []
+						},
+						{
+							"name": "Create Message to user, sms",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "c04bbd93-2362-47e3-878b-a39d3eeba767",
+										"exec": [
+											"var jsonData = pm.response.json();",
+											"pm.test(\"Status code is 201 for creating a message to user via sms as merchant\", () => pm.response.to.have.status(201));",
+											"pm.test(\"Body saves expected value\", () => pm.expect(jsonData.plain.body).to.eql(\"Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role.\"));",
+											"pm.test(\"Body saves as string\", () => pm.expect(jsonData.plain.body).to.be.a('string'));",
+											"pm.test(\"Channel saves expected value\", () => pm.expect(jsonData.plain.channel).to.eql(\"sms\"));",
+											"pm.test(\"Channel saves as string\", () => pm.expect(jsonData.plain.channel).to.be.a('string'));",
+											"pm.test(\"Direction saves expected value\", () => pm.expect(jsonData.direction).to.eql(\"to-user\"));",
+											"pm.test(\"Direction saves as string\", () => pm.expect(jsonData.direction).to.be.a('string'));",
+											"pm.test(\"Org ID saves expected value\", () => pm.expect(jsonData.organizationId).to.eql(\"autoOrg\"));",
+											"pm.test(\"Org ID saves as string\", () => pm.expect(jsonData.organizationId).to.be.a('string'));",
+											"pm.test(\"Merchant Id saves expected value\", () => pm.expect(jsonData.merchantId).to.eql(\"autoauthmerch\"));",
+											"pm.test(\"Merchant Id saves as string\", () => pm.expect(jsonData.merchantId).to.be.a('string'));",
+											"pm.test(\"Status saves expected value\", () => pm.expect(jsonData.status).to.eql(\"pending\"));",
+											"pm.test(\"Status saves as string\", () => pm.expect(jsonData.status).to.be.a('string'));",
+											"pm.test(\"messageId saves as string\", () => pm.expect(jsonData.messageId).to.be.a('string'));",
+											"pattern = new RegExp(/^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/, 'i');",
+											"pm.test(\"Message id saved in expected format\", () => pm.expect(pattern.test(jsonData.messageId)).to.be.true);",
+											"pm.test(\"Created by not being returned in response\", () => pm.expect(pm.response.text()).to.not.include(\"createdBy\"));",
+											"pm.test(\"Created on not being returned in response\", () => pm.expect(pm.response.text()).to.not.include(\"createdOn\"));",
+											"pm.test(\"Response time is less than 2000ms\", () => pm.expect(pm.response.responseTime).to.be.below(2000));"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"id": "5a73de8c-e16e-4440-97a7-45e4db9bfac4",
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{new_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"name": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"plain\": {\r\n        \"body\": \"Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role.\",\r\n        \"channel\": \"sms\"\r\n    },\r\n    \"direction\": \"to-user\"\r\n}"
+								},
+								"url": {
+									"raw": "https://{{host_msg}}/v3/users/123/messages",
+									"protocol": "https",
+									"host": [
+										"{{host_msg}}"
+									],
+									"path": [
+										"v3",
+										"users",
+										"123",
+										"messages"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create Message to user, email",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "c04bbd93-2362-47e3-878b-a39d3eeba767",
+										"exec": [
+											"var jsonData = pm.response.json();",
+											"pm.test(\"Status code is 201 for creating a message to user via email as merchant\", () => pm.response.to.have.status(201));",
+											"pm.test(\"Body saves expected value\", () => pm.expect(jsonData.plain.body).to.eql(\"Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role.\"));",
+											"pm.test(\"Body saves as string\", () => pm.expect(jsonData.plain.body).to.be.a('string'));",
+											"pm.test(\"Channel saves expected value\", () => pm.expect(jsonData.plain.channel).to.eql(\"email\"));",
+											"pm.test(\"Channel saves as string\", () => pm.expect(jsonData.plain.channel).to.be.a('string'));",
+											"pm.test(\"Direction saves expected value\", () => pm.expect(jsonData.direction).to.eql(\"to-user\"));",
+											"pm.test(\"Direction saves as string\", () => pm.expect(jsonData.direction).to.be.a('string'));",
+											"pm.test(\"Org ID saves expected value\", () => pm.expect(jsonData.organizationId).to.eql(\"autoOrg\"));",
+											"pm.test(\"Org ID saves as string\", () => pm.expect(jsonData.organizationId).to.be.a('string'));",
+											"pm.test(\"Merchant Id saves expected value\", () => pm.expect(jsonData.merchantId).to.eql(\"autoauthmerch\"));",
+											"pm.test(\"Merchant Id saves as string\", () => pm.expect(jsonData.merchantId).to.be.a('string'));",
+											"pm.test(\"Status saves expected value\", () => pm.expect(jsonData.status).to.eql(\"pending\"));",
+											"pm.test(\"Status saves as string\", () => pm.expect(jsonData.status).to.be.a('string'));",
+											"pm.test(\"messageId saves as string\", () => pm.expect(jsonData.messageId).to.be.a('string'));",
+											"pattern = new RegExp(/^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/, 'i');",
+											"pm.test(\"Message id saved in expected format\", () => pm.expect(pattern.test(jsonData.messageId)).to.be.true);",
+											"pm.test(\"Created by not being returned in response\", () => pm.expect(pm.response.text()).to.not.include(\"createdBy\"));",
+											"pm.test(\"Created on not being returned in response\", () => pm.expect(pm.response.text()).to.not.include(\"createdOn\"));",
+											"pm.test(\"Response time is less than 2000ms\", () => pm.expect(pm.response.responseTime).to.be.below(2000));"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"id": "5a73de8c-e16e-4440-97a7-45e4db9bfac4",
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{new_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"name": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"plain\": {\r\n        \"body\": \"Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role.\",\r\n        \"channel\": \"email\"\r\n    },\r\n    \"direction\": \"to-user\"\r\n}"
+								},
+								"url": {
+									"raw": "https://{{host_msg}}/v3/users/123/messages",
+									"protocol": "https",
+									"host": [
+										"{{host_msg}}"
+									],
+									"path": [
+										"v3",
+										"users",
+										"123",
+										"messages"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create Message from user, sms",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "c04bbd93-2362-47e3-878b-a39d3eeba767",
+										"exec": [
+											"var jsonData = pm.response.json();",
+											"pm.test(\"Status code is 201 for creating a message from user via sms as merchant\", () => pm.response.to.have.status(201));",
+											"pm.test(\"Body saves expected value\", () => pm.expect(jsonData.plain.body).to.eql(\"Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role.\"));",
+											"pm.test(\"Body saves as string\", () => pm.expect(jsonData.plain.body).to.be.a('string'));",
+											"pm.test(\"Channel saves expected value\", () => pm.expect(jsonData.plain.channel).to.eql(\"sms\"));",
+											"pm.test(\"Channel saves as string\", () => pm.expect(jsonData.plain.channel).to.be.a('string'));",
+											"pm.test(\"Direction saves expected value\", () => pm.expect(jsonData.direction).to.eql(\"from-user\"));",
+											"pm.test(\"Direction saves as string\", () => pm.expect(jsonData.direction).to.be.a('string'));",
+											"pm.test(\"Org ID saves expected value\", () => pm.expect(jsonData.organizationId).to.eql(\"autoOrg\"));",
+											"pm.test(\"Org ID saves as string\", () => pm.expect(jsonData.organizationId).to.be.a('string'));",
+											"pm.test(\"Merchant Id saves expected value\", () => pm.expect(jsonData.merchantId).to.eql(\"autoauthmerch\"));",
+											"pm.test(\"Merchant Id saves as string\", () => pm.expect(jsonData.merchantId).to.be.a('string'));",
+											"pm.test(\"Status saves expected value\", () => pm.expect(jsonData.status).to.eql(\"pending\"));",
+											"pm.test(\"Status saves as string\", () => pm.expect(jsonData.status).to.be.a('string'));",
+											"pm.test(\"messageId saves as string\", () => pm.expect(jsonData.messageId).to.be.a('string'));",
+											"pattern = new RegExp(/^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/, 'i');",
+											"pm.test(\"Message id saved in expected format\", () => pm.expect(pattern.test(jsonData.messageId)).to.be.true);",
+											"pm.test(\"Created by not being returned in response\", () => pm.expect(pm.response.text()).to.not.include(\"createdBy\"));",
+											"pm.test(\"Created on not being returned in response\", () => pm.expect(pm.response.text()).to.not.include(\"createdOn\"));",
+											"pm.test(\"Response time is less than 2000ms\", () => pm.expect(pm.response.responseTime).to.be.below(2000));"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"id": "5a73de8c-e16e-4440-97a7-45e4db9bfac4",
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{new_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"name": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"plain\": {\r\n        \"body\": \"Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role.\",\r\n        \"channel\": \"sms\"\r\n    },\r\n    \"direction\": \"from-user\"\r\n}"
+								},
+								"url": {
+									"raw": "https://{{host_msg}}/v3/users/123/messages",
+									"protocol": "https",
+									"host": [
+										"{{host_msg}}"
+									],
+									"path": [
+										"v3",
+										"users",
+										"123",
+										"messages"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create Message from user, email",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "c04bbd93-2362-47e3-878b-a39d3eeba767",
+										"exec": [
+											"var jsonData = pm.response.json();",
+											"pm.test(\"Status code is 201 for creating a message from user via email as merchant\", () => pm.response.to.have.status(201));",
+											"pm.test(\"Body saves expected value\", () => pm.expect(jsonData.plain.body).to.eql(\"Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role.\"));",
+											"pm.test(\"Body saves as string\", () => pm.expect(jsonData.plain.body).to.be.a('string'));",
+											"pm.test(\"Channel saves expected value\", () => pm.expect(jsonData.plain.channel).to.eql(\"email\"));",
+											"pm.test(\"Channel saves as string\", () => pm.expect(jsonData.plain.channel).to.be.a('string'));",
+											"pm.test(\"Direction saves expected value\", () => pm.expect(jsonData.direction).to.eql(\"from-user\"));",
+											"pm.test(\"Direction saves as string\", () => pm.expect(jsonData.direction).to.be.a('string'));",
+											"pm.test(\"Org ID saves expected value\", () => pm.expect(jsonData.organizationId).to.eql(\"autoOrg\"));",
+											"pm.test(\"Org ID saves as string\", () => pm.expect(jsonData.organizationId).to.be.a('string'));",
+											"pm.test(\"Merchant Id saves expected value\", () => pm.expect(jsonData.merchantId).to.eql(\"autoauthmerch\"));",
+											"pm.test(\"Merchant Id saves as string\", () => pm.expect(jsonData.merchantId).to.be.a('string'));",
+											"pm.test(\"Status saves expected value\", () => pm.expect(jsonData.status).to.eql(\"pending\"));",
+											"pm.test(\"Status saves as string\", () => pm.expect(jsonData.status).to.be.a('string'));",
+											"pm.test(\"messageId saves as string\", () => pm.expect(jsonData.messageId).to.be.a('string'));",
+											"pattern = new RegExp(/^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/, 'i');",
+											"pm.test(\"Message id saved in expected format\", () => pm.expect(pattern.test(jsonData.messageId)).to.be.true);",
+											"pm.test(\"Created by not being returned in response\", () => pm.expect(pm.response.text()).to.not.include(\"createdBy\"));",
+											"pm.test(\"Created on not being returned in response\", () => pm.expect(pm.response.text()).to.not.include(\"createdOn\"));",
+											"pm.test(\"Response time is less than 2000ms\", () => pm.expect(pm.response.responseTime).to.be.below(2000));"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"id": "5a73de8c-e16e-4440-97a7-45e4db9bfac4",
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{new_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"name": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"plain\": {\r\n        \"body\": \"Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role.\",\r\n        \"channel\": \"email\"\r\n    },\r\n    \"direction\": \"from-user\"\r\n}"
+								},
+								"url": {
+									"raw": "https://{{host_msg}}/v3/users/123/messages",
+									"protocol": "https",
+									"host": [
+										"{{host_msg}}"
+									],
+									"path": [
+										"v3",
+										"users",
+										"123",
+										"messages"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"_postman_isSubFolder": true
+				}
+			]
+		},
+		{
+			"name": "Negative Cases",
+			"item": [
+				{
+					"name": "System",
+					"item": [
+						{
+							"name": "Token (no msg scopes)",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "4e463ae3-14ae-49ce-8d5c-21648c11716d",
+										"exec": [
+											"var jsonData = pm.response.json();",
+											"pm.environment.set(\"new_token\", jsonData.token );",
+											"pm.test(\"Response time is less than 2000ms\", () => pm.expect(pm.response.responseTime).to.be.below(2000));",
+											"pm.test(\"Status code is 201 for creating token without 'messages' scopes as system\", () => pm.response.to.have.status(201));"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"id": "20bce67a-4c51-45af-bf8b-809b8bb1fb3a",
+										"exec": [
+											"let timestamp = new Date().getTime();",
+											"let body = JSON.parse(request.data);",
+											"postman.setEnvironmentVariable(\"timestamp\", timestamp);",
+											"",
+											"let token_secret = postman.getEnvironmentVariable(\"token_secret\");",
+											"let hmac = CryptoJS.HmacSHA256(`${body.signature_value}.${body.signature_value.length}.${timestamp}`, token_secret);",
+											"let encodedSource = CryptoJS.enc.Base64.stringify(hmac);",
+											"postman.setEnvironmentVariable(\"signature\", encodedSource);"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"name": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"client\": \"autoAuthenticationSystem\", \n    \"signature_value\": \"test2\",\n    \"timestamp\": \"{{timestamp}}\",\n    \"signature\": \"{{signature}}\",\n    \"audience\": \"api.authvia.com\",\n    \"scopes\": [\n    \t\"users:read\"\n    \t]\n}"
+								},
+								"url": {
+									"raw": "https://{{host}}/v3/tokens",
+									"protocol": "https",
+									"host": [
+										"{{host}}"
+									],
+									"path": [
+										"v3",
+										"tokens"
+									]
+								},
+								"description": "Previous timestamp token used: 1556757580678"
+							},
+							"response": []
+						},
+						{
+							"name": "Attempt to create Message (missing scope)",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "c04bbd93-2362-47e3-878b-a39d3eeba767",
+										"exec": [
+											"var jsonData = pm.response.json();",
+											"pm.test(\"Status code is 403 for attempting to create a message as system without scope\", () => pm.response.to.have.status(403));",
+											"pm.test(\"Channel saves expected value\", () => pm.expect(jsonData.Message).to.eql(\"User is not authorized to access this resource\"));",
+											"pm.test(\"Channel saves as string\", () => pm.expect(jsonData.Message).to.be.a('string'));",
+											"pm.test(\"Created by not being returned in response\", () => pm.expect(pm.response.text()).to.not.include(\"createdBy\"));",
+											"pm.test(\"Created on not being returned in response\", () => pm.expect(pm.response.text()).to.not.include(\"createdOn\"));",
+											"pm.test(\"Response time is less than 2000ms\", () => pm.expect(pm.response.responseTime).to.be.below(2000));"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"id": "5a73de8c-e16e-4440-97a7-45e4db9bfac4",
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{new_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"name": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"plain\": {\r\n        \"body\": \"Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role. Message created successfully as system role.\",\r\n        \"channel\": \"sms\"\r\n    },\r\n    \"direction\": \"to-user\"\r\n}"
+								},
+								"url": {
+									"raw": "https://{{host_msg}}/v3/users/123/messages",
+									"protocol": "https",
+									"host": [
+										"{{host_msg}}"
+									],
+									"path": [
+										"v3",
+										"users",
+										"123",
+										"messages"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Token",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "4e463ae3-14ae-49ce-8d5c-21648c11716d",
+										"exec": [
+											"var jsonData = pm.response.json();",
+											"pm.environment.set(\"new_token\", jsonData.token );",
+											"pm.test(\"Response time is less than 2000ms\", () => pm.expect(pm.response.responseTime).to.be.below(2000));",
+											"pm.test(\"Status code is 201 for creating token as system\", () => pm.response.to.have.status(201));"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"id": "20bce67a-4c51-45af-bf8b-809b8bb1fb3a",
+										"exec": [
+											"let timestamp = new Date().getTime();",
+											"let body = JSON.parse(request.data);",
+											"postman.setEnvironmentVariable(\"timestamp\", timestamp);",
+											"",
+											"let token_secret = postman.getEnvironmentVariable(\"token_secret\");",
+											"let hmac = CryptoJS.HmacSHA256(`${body.signature_value}.${body.signature_value.length}.${timestamp}`, token_secret);",
+											"let encodedSource = CryptoJS.enc.Base64.stringify(hmac);",
+											"postman.setEnvironmentVariable(\"signature\", encodedSource);"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"name": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"client\": \"autoAuthenticationSystem\", \n    \"signature_value\": \"test2\",\n    \"timestamp\": \"{{timestamp}}\",\n    \"signature\": \"{{signature}}\",\n    \"audience\": \"api.authvia.com\",\n    \"scopes\": [\n    \t\"messages:create\",\n    \t\"messages:read\",\n    \t\"messages:update\"\n    \t]\n}"
+								},
+								"url": {
+									"raw": "https://{{host}}/v3/tokens",
+									"protocol": "https",
+									"host": [
+										"{{host}}"
+									],
+									"path": [
+										"v3",
+										"tokens"
+									]
+								},
+								"description": "Previous timestamp token used: 1556757580678"
+							},
+							"response": []
+						},
+						{
+							"name": "Attempt to create Message under min",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "c04bbd93-2362-47e3-878b-a39d3eeba767",
+										"exec": [
+											"var jsonData = pm.response.json();",
+											"pm.test(\"Status code is 400 for attempting to create a message under min as system\", () => pm.response.to.have.status(400));",
+											"pm.test(\"Expected error message\", () => pm.expect(jsonData.message[0]).to.eql(\"Plain body can't be blank\"));",
+											"pm.test(\"Error message returned as string\", () => pm.expect(jsonData.message[0]).to.be.a('string'));",
+											"pm.test(\"Created by not being returned in response\", () => pm.expect(pm.response.text()).to.not.include(\"createdBy\"));",
+											"pm.test(\"Created on not being returned in response\", () => pm.expect(pm.response.text()).to.not.include(\"createdOn\"));",
+											"pm.test(\"Response time is less than 2000ms\", () => pm.expect(pm.response.responseTime).to.be.below(2000));"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"id": "5a73de8c-e16e-4440-97a7-45e4db9bfac4",
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{new_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"name": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"plain\": {\r\n        \"body\": \"\",\r\n        \"channel\": \"sms\"\r\n    },\r\n    \"direction\": \"to-user\"\r\n}"
+								},
+								"url": {
+									"raw": "https://{{host_msg}}/v3/users/123/messages",
+									"protocol": "https",
+									"host": [
+										"{{host_msg}}"
+									],
+									"path": [
+										"v3",
+										"users",
+										"123",
+										"messages"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"_postman_isSubFolder": true
+				},
+				{
+					"name": "Admin",
+					"item": [
+						{
+							"name": "Token (no msg scopes)",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "4e463ae3-14ae-49ce-8d5c-21648c11716d",
+										"exec": [
+											"var jsonData = pm.response.json();",
+											"pm.environment.set(\"new_token\", jsonData.token );",
+											"pm.test(\"Response time is less than 2000ms\", () => pm.expect(pm.response.responseTime).to.be.below(2000));",
+											"pm.test(\"Status code is 201 for creating token without 'messages' scopes as admin\", () => pm.response.to.have.status(201));"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"id": "20bce67a-4c51-45af-bf8b-809b8bb1fb3a",
+										"exec": [
+											"let timestamp = new Date().getTime();",
+											"let body = JSON.parse(request.data);",
+											"postman.setEnvironmentVariable(\"timestamp\", timestamp);",
+											"",
+											"let token_secret = postman.getEnvironmentVariable(\"token_secret\");",
+											"let hmac = CryptoJS.HmacSHA256(`${body.signature_value}.${body.signature_value.length}.${timestamp}`, token_secret);",
+											"let encodedSource = CryptoJS.enc.Base64.stringify(hmac);",
+											"postman.setEnvironmentVariable(\"signature\", encodedSource);"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"name": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"client\": \"autoAuthenticationAdmin\", \n    \"signature_value\": \"test2\",\n    \"timestamp\": \"{{timestamp}}\",\n    \"signature\": \"{{signature}}\",\n    \"audience\": \"api.authvia.com\",\n    \"scopes\": [\n    \t\"users:read\"\n    \t]\n}"
+								},
+								"url": {
+									"raw": "https://{{host}}/v3/tokens",
+									"protocol": "https",
+									"host": [
+										"{{host}}"
+									],
+									"path": [
+										"v3",
+										"tokens"
+									]
+								},
+								"description": "Previous timestamp token used: 1556757580678"
+							},
+							"response": []
+						},
+						{
+							"name": "Attempt to create Message (missing scope)",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "c04bbd93-2362-47e3-878b-a39d3eeba767",
+										"exec": [
+											"var jsonData = pm.response.json();",
+											"pm.test(\"Status code is 403 for attempting to create a message as admin without scope\", () => pm.response.to.have.status(403));",
+											"pm.test(\"Channel saves expected value\", () => pm.expect(jsonData.Message).to.eql(\"User is not authorized to access this resource\"));",
+											"pm.test(\"Channel saves as string\", () => pm.expect(jsonData.Message).to.be.a('string'));",
+											"pm.test(\"Created by not being returned in response\", () => pm.expect(pm.response.text()).to.not.include(\"createdBy\"));",
+											"pm.test(\"Created on not being returned in response\", () => pm.expect(pm.response.text()).to.not.include(\"createdOn\"));",
+											"pm.test(\"Response time is less than 2000ms\", () => pm.expect(pm.response.responseTime).to.be.below(2000));"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"id": "5a73de8c-e16e-4440-97a7-45e4db9bfac4",
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{new_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"name": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"plain\": {\r\n        \"body\": \"Message created successfully as admin role. Message created successfully as admin role. Message created successfully as admin role. Message created successfully as admin role. Message created successfully as admin role. Message created successfully as admin role. Message created successfully as admin role. Message created successfully as admin role. Message created successfully as admin role. Message created successfully as admin role. Message created successfully as admin role. Message created successfully as admin role. Message created successfully as admin role. Message created successfully as admin role. Message created successfully as admin role.\",\r\n        \"channel\": \"sms\"\r\n    },\r\n    \"direction\": \"to-user\"\r\n}"
+								},
+								"url": {
+									"raw": "https://{{host_msg}}/v3/users/123/messages",
+									"protocol": "https",
+									"host": [
+										"{{host_msg}}"
+									],
+									"path": [
+										"v3",
+										"users",
+										"123",
+										"messages"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Token",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "4e463ae3-14ae-49ce-8d5c-21648c11716d",
+										"exec": [
+											"var jsonData = pm.response.json();",
+											"pm.environment.set(\"new_token\", jsonData.token );",
+											"pm.test(\"Response time is less than 2000ms\", () => pm.expect(pm.response.responseTime).to.be.below(2000));",
+											"pm.test(\"Status code is 201 for creating token as admin\", () => pm.response.to.have.status(201));"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"id": "20bce67a-4c51-45af-bf8b-809b8bb1fb3a",
+										"exec": [
+											"let timestamp = new Date().getTime();",
+											"let body = JSON.parse(request.data);",
+											"postman.setEnvironmentVariable(\"timestamp\", timestamp);",
+											"",
+											"let token_secret = postman.getEnvironmentVariable(\"token_secret\");",
+											"let hmac = CryptoJS.HmacSHA256(`${body.signature_value}.${body.signature_value.length}.${timestamp}`, token_secret);",
+											"let encodedSource = CryptoJS.enc.Base64.stringify(hmac);",
+											"postman.setEnvironmentVariable(\"signature\", encodedSource);"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"name": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"client\": \"autoAuthenticationAdmin\", \n    \"signature_value\": \"test2\",\n    \"timestamp\": \"{{timestamp}}\",\n    \"signature\": \"{{signature}}\",\n    \"audience\": \"api.authvia.com\",\n    \"scopes\": [\n    \t\"messages:create\",\n    \t\"messages:read\",\n    \t\"messages:update\"\n    \t]\n}"
+								},
+								"url": {
+									"raw": "https://{{host}}/v3/tokens",
+									"protocol": "https",
+									"host": [
+										"{{host}}"
+									],
+									"path": [
+										"v3",
+										"tokens"
+									]
+								},
+								"description": "Previous timestamp token used: 1556757580678"
+							},
+							"response": []
+						},
+						{
+							"name": "Attempt to create Message under min",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "c04bbd93-2362-47e3-878b-a39d3eeba767",
+										"exec": [
+											"var jsonData = pm.response.json();",
+											"pm.test(\"Status code is 400 for attempting to create a message under min as admin\", () => pm.response.to.have.status(400));",
+											"pm.test(\"Expected error message\", () => pm.expect(jsonData.message[0]).to.eql(\"Plain body can't be blank\"));",
+											"pm.test(\"Error message returned as string\", () => pm.expect(jsonData.message[0]).to.be.a('string'));",
+											"pm.test(\"Created by not being returned in response\", () => pm.expect(pm.response.text()).to.not.include(\"createdBy\"));",
+											"pm.test(\"Created on not being returned in response\", () => pm.expect(pm.response.text()).to.not.include(\"createdOn\"));",
+											"pm.test(\"Response time is less than 2000ms\", () => pm.expect(pm.response.responseTime).to.be.below(2000));"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"id": "5a73de8c-e16e-4440-97a7-45e4db9bfac4",
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{new_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"name": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"plain\": {\r\n        \"body\": \"\",\r\n        \"channel\": \"sms\"\r\n    },\r\n    \"direction\": \"to-user\"\r\n}"
+								},
+								"url": {
+									"raw": "https://{{host_msg}}/v3/users/123/messages",
+									"protocol": "https",
+									"host": [
+										"{{host_msg}}"
+									],
+									"path": [
+										"v3",
+										"users",
+										"123",
+										"messages"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"_postman_isSubFolder": true
+				},
+				{
+					"name": "Merchant",
+					"item": [
+						{
+							"name": "Token (no msg scopes)",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "4e463ae3-14ae-49ce-8d5c-21648c11716d",
+										"exec": [
+											"var jsonData = pm.response.json();",
+											"pm.environment.set(\"new_token\", jsonData.token );",
+											"pm.test(\"Response time is less than 2000ms\", () => pm.expect(pm.response.responseTime).to.be.below(2000));",
+											"pm.test(\"Status code is 201 for creating token without 'messages' scopes as merchant\", () => pm.response.to.have.status(201));"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"id": "20bce67a-4c51-45af-bf8b-809b8bb1fb3a",
+										"exec": [
+											"let timestamp = new Date().getTime();",
+											"let body = JSON.parse(request.data);",
+											"postman.setEnvironmentVariable(\"timestamp\", timestamp);",
+											"",
+											"let token_secret = postman.getEnvironmentVariable(\"token_secret\");",
+											"let hmac = CryptoJS.HmacSHA256(`${body.signature_value}.${body.signature_value.length}.${timestamp}`, token_secret);",
+											"let encodedSource = CryptoJS.enc.Base64.stringify(hmac);",
+											"postman.setEnvironmentVariable(\"signature\", encodedSource);"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"name": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"client\": \"autoAuthenticationMerchant\", \n    \"signature_value\": \"test2\",\n    \"timestamp\": \"{{timestamp}}\",\n    \"signature\": \"{{signature}}\",\n    \"audience\": \"api.authvia.com\",\n    \"scopes\": [\n    \t\"users:read\"\n    \t]\n}"
+								},
+								"url": {
+									"raw": "https://{{host}}/v3/tokens",
+									"protocol": "https",
+									"host": [
+										"{{host}}"
+									],
+									"path": [
+										"v3",
+										"tokens"
+									]
+								},
+								"description": "Previous timestamp token used: 1556757580678"
+							},
+							"response": []
+						},
+						{
+							"name": "Attempt to create Message (missing scope)",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "c04bbd93-2362-47e3-878b-a39d3eeba767",
+										"exec": [
+											"var jsonData = pm.response.json();",
+											"pm.test(\"Status code is 403 for attempting to create a message as merchant without scope\", () => pm.response.to.have.status(403));",
+											"pm.test(\"Channel saves expected value\", () => pm.expect(jsonData.Message).to.eql(\"User is not authorized to access this resource\"));",
+											"pm.test(\"Channel saves as string\", () => pm.expect(jsonData.Message).to.be.a('string'));",
+											"pm.test(\"Created by not being returned in response\", () => pm.expect(pm.response.text()).to.not.include(\"createdBy\"));",
+											"pm.test(\"Created on not being returned in response\", () => pm.expect(pm.response.text()).to.not.include(\"createdOn\"));",
+											"pm.test(\"Response time is less than 2000ms\", () => pm.expect(pm.response.responseTime).to.be.below(2000));"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"id": "5a73de8c-e16e-4440-97a7-45e4db9bfac4",
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{new_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"name": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"plain\": {\r\n        \"body\": \"Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role. Message created successfully as merchant role.\",\r\n        \"channel\": \"sms\"\r\n    },\r\n    \"direction\": \"to-user\"\r\n}"
+								},
+								"url": {
+									"raw": "https://{{host_msg}}/v3/users/123/messages",
+									"protocol": "https",
+									"host": [
+										"{{host_msg}}"
+									],
+									"path": [
+										"v3",
+										"users",
+										"123",
+										"messages"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Token",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "4e463ae3-14ae-49ce-8d5c-21648c11716d",
+										"exec": [
+											"var jsonData = pm.response.json();",
+											"pm.environment.set(\"new_token\", jsonData.token );",
+											"pm.test(\"Response time is less than 2000ms\", () => pm.expect(pm.response.responseTime).to.be.below(2000));",
+											"pm.test(\"Status code is 201 for creating token as merchant\", () => pm.response.to.have.status(201));"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"id": "20bce67a-4c51-45af-bf8b-809b8bb1fb3a",
+										"exec": [
+											"let timestamp = new Date().getTime();",
+											"let body = JSON.parse(request.data);",
+											"postman.setEnvironmentVariable(\"timestamp\", timestamp);",
+											"",
+											"let token_secret = postman.getEnvironmentVariable(\"token_secret\");",
+											"let hmac = CryptoJS.HmacSHA256(`${body.signature_value}.${body.signature_value.length}.${timestamp}`, token_secret);",
+											"let encodedSource = CryptoJS.enc.Base64.stringify(hmac);",
+											"postman.setEnvironmentVariable(\"signature\", encodedSource);"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"name": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"client\": \"autoAuthenticationMerchant\", \n    \"signature_value\": \"test2\",\n    \"timestamp\": \"{{timestamp}}\",\n    \"signature\": \"{{signature}}\",\n    \"audience\": \"api.authvia.com\",\n    \"scopes\": [\n    \t\"messages:create\",\n    \t\"messages:read\",\n    \t\"messages:update\"\n    \t]\n}"
+								},
+								"url": {
+									"raw": "https://{{host}}/v3/tokens",
+									"protocol": "https",
+									"host": [
+										"{{host}}"
+									],
+									"path": [
+										"v3",
+										"tokens"
+									]
+								},
+								"description": "Previous timestamp token used: 1556757580678"
+							},
+							"response": []
+						},
+						{
+							"name": "Attempt to create Message under min",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "c04bbd93-2362-47e3-878b-a39d3eeba767",
+										"exec": [
+											"var jsonData = pm.response.json();",
+											"pm.test(\"Status code is 400 for attempting to create a message under min as merchant\", () => pm.response.to.have.status(400));",
+											"pm.test(\"Expected error message\", () => pm.expect(jsonData.message[0]).to.eql(\"Plain body can't be blank\"));",
+											"pm.test(\"Error message returned as string\", () => pm.expect(jsonData.message[0]).to.be.a('string'));",
+											"pm.test(\"Created by not being returned in response\", () => pm.expect(pm.response.text()).to.not.include(\"createdBy\"));",
+											"pm.test(\"Created on not being returned in response\", () => pm.expect(pm.response.text()).to.not.include(\"createdOn\"));",
+											"pm.test(\"Response time is less than 2000ms\", () => pm.expect(pm.response.responseTime).to.be.below(2000));"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"id": "5a73de8c-e16e-4440-97a7-45e4db9bfac4",
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{new_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"name": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"plain\": {\r\n        \"body\": \"\",\r\n        \"channel\": \"sms\"\r\n    },\r\n    \"direction\": \"to-user\"\r\n}"
+								},
+								"url": {
+									"raw": "https://{{host_msg}}/v3/users/123/messages",
+									"protocol": "https",
+									"host": [
+										"{{host_msg}}"
+									],
+									"path": [
+										"v3",
+										"users",
+										"123",
+										"messages"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"_postman_isSubFolder": true
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJqdGkiOiIyNDEyMTIzMTIzIiwiYXVkIjoiYXBpLmF1dGh2aWEuY29tIiwiaXNzIjoiYXV0aC5hdXRodmlhLmNvbSIsImF6cCI6IjEyMzEyM2FzZGZhc2RmMTIzMTIzIiwic2NvcGUiOiJ1c2VyczpyZWFkIHVzZXJzOmNyZWF0ZSB1c2Vyczp1cGRhdGUgYXBwbGljYXRpb25zOnJlYWQgb3JnYW5pemF0aW9uczpjcmVhdGUgb3JnYW5pemF0aW9uczpyZWFkIG9yZ2FuaXphdGlvbnM6dXBkYXRlIG1lcmNoYW50czpjcmVhdGUgbWVyY2hhbnRzOnJlYWQgbWVyY2hhbnRzOnVwZGF0ZSBub3RlczpjcmVhdGUgbWVzc2FnZXM6Y3JlYXRlIG1lc3NhZ2VzOnVwZGF0ZSBtZXNzYWdlczpyZWFkIiwiZXhwIjoxNjU2Mjc5MDIyfQ.MUtVIGyUWduK1jM2ezLQQOcG-WyTsAS7sT1MEsfGqiM",
+				"type": "string"
+			}
+		]
+	}
+}
